@@ -92,48 +92,49 @@ class _ProfesiScreenState extends State<ProfesiScreen> {
                 SizedBox(
                   height: 20,
                 ),
-                InkWell(
-                    onTap: () async {
-                      _permissionReady = await _checkPermission();
-                      if (_permissionReady) {
-                        await _prepareSaveDir();
-                        print("Downloading");
-                        try {
-                          await Dio().download(
-                              "http://192.168.1.103:8000/api/downloadFile",
-                              _localPath + "/" + "profesi.pdf");
-                          print("Download Completed.");
-                          print(_localPath);
-                          final scaffold = ScaffoldMessenger.of(context);
-                          scaffold.showSnackBar(
-                            SnackBar(
-                              content: Text('Download Completed.$_localPath'),
-                              action: SnackBarAction(
-                                  label: 'OK',
-                                  onPressed: scaffold.hideCurrentSnackBar),
-                            ),
-                          );
-                        } catch (e) {
-                          final scaffold = ScaffoldMessenger.of(context);
-                          scaffold.showSnackBar(
-                            SnackBar(
-                              content:
-                                  Text("Download Failed.\n\n" + e.toString()),
-                              action: SnackBarAction(
-                                  label: 'OK',
-                                  onPressed: scaffold.hideCurrentSnackBar),
-                            ),
-                          );
-                        }
-                      }
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.grey.withOpacity(0.5)),
-                      padding: EdgeInsets.all(8),
-                      child: Icon(Icons.download, color: Colors.black),
-                    )),
+                // InkWell(
+                //   onTap: () async {
+                //     _permissionReady = await _checkPermission();
+                //     if (_permissionReady) {
+                //       await _prepareSaveDir();
+                //       print("Downloading");
+                //       try {
+                //         await Dio().download(
+                //             "http://192.168.0.107:8000/api/downloadFile",
+                //             _localPath + "/" + "profesi.pdf");
+                //         print("Download Completed.");
+                //         print(_localPath);
+                //         final scaffold = ScaffoldMessenger.of(context);
+                //         scaffold.showSnackBar(
+                //           SnackBar(
+                //             content: Text('Download Completed.$_localPath'),
+                //             action: SnackBarAction(
+                //                 label: 'OK',
+                //                 onPressed: scaffold.hideCurrentSnackBar),
+                //           ),
+                //         );
+                //       } catch (e) {
+                //         final scaffold = ScaffoldMessenger.of(context);
+                //         scaffold.showSnackBar(
+                //           SnackBar(
+                //             content:
+                //                 Text("Download Failed.\n\n" + e.toString()),
+                //             action: SnackBarAction(
+                //                 label: 'OK',
+                //                 onPressed: scaffold.hideCurrentSnackBar),
+                //           ),
+                //         );
+                //       }
+                //     }
+                //   },
+                //   child: Container(
+                //     decoration: BoxDecoration(
+                //         shape: BoxShape.circle,
+                //         color: Colors.grey.withOpacity(0.5)),
+                //     padding: EdgeInsets.all(8),
+                //     child: Icon(Icons.download, color: Colors.black),
+                //   ),
+                // ),
                 Expanded(
                   child: FutureBuilder<List>(
                     future: getTotalData(),
@@ -230,7 +231,7 @@ class _ProfesiScreenState extends State<ProfesiScreen> {
     String? _token = await storage.read(key: 'jwt');
     final response = await http.get(
       Uri.parse(
-          "http://192.168.1.103:8000/api/profesi/index/$_currentPagePagination"),
+          "http://192.168.0.107:8000/api/profesi/index/$_currentPagePagination"),
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -334,8 +335,10 @@ class ItemList extends StatelessWidget {
                             ),
                             GestureDetector(
                               onTap: () {
-                                deleteData(list[i]['profesi_id'], context);
-                                // print(list[i]['profesi_id']);
+                                showAlertDialog(
+                                  context,
+                                  list[i]['profesi_id'],
+                                );
                               },
                               child: Row(
                                 children: [
@@ -376,7 +379,7 @@ Future<void> deleteData(profesi_id, BuildContext context) async {
   String? _token = await storage.read(key: 'jwt');
   String? _login_st = await storage.read(key: 'login_st');
   print(_login_st);
-  var url = "http://192.168.1.103:8000/api/profesi/hapus";
+  var url = "http://192.168.0.107:8000/api/profesi/hapus";
   http.post(
     Uri.parse(url),
     headers: {
@@ -412,6 +415,28 @@ void _DeleteData(BuildContext context, String error) {
   );
 }
 
-getfile() {
-  //You can download a single file
+showAlertDialog(BuildContext context, kematian_id) {
+  // set up the button
+  Widget okButton = TextButton(
+    child: Text("OK"),
+    onPressed: () {
+      deleteData(kematian_id, context);
+    },
+  );
+  // set up the AlertDialog
+  AlertDialog alert = AlertDialog(
+    title: Text("Hapus"),
+    content: Text("Apakah anda yakin menghapus data ini ?."),
+    actions: [
+      okButton,
+    ],
+  );
+
+  // show the dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
+    },
+  );
 }

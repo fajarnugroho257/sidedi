@@ -100,7 +100,7 @@ class _PengurusScreenState extends State<PengurusScreen> {
                         print("Downloading");
                         try {
                           await Dio().download(
-                              "http://192.168.1.103:8000/api/downloadFile",
+                              "http://192.168.0.107:8000/api/downloadFile",
                               _localPath + "/" + "profesi.pdf");
                           print("Download Completed.");
                           print(_localPath);
@@ -230,7 +230,7 @@ class _PengurusScreenState extends State<PengurusScreen> {
     String? _token = await storage.read(key: 'jwt');
     final response = await http.get(
       Uri.parse(
-          "http://192.168.1.103:8000/api/user-index/$_currentPagePagination"),
+          "http://192.168.0.107:8000/api/user-index/$_currentPagePagination"),
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',

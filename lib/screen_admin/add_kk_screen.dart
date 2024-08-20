@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:sidedi/screen/kk_screen.dart';
@@ -18,7 +19,7 @@ class _AddDataKkState extends State<AddDataKk> {
     try {
       final response = await http
           .post(
-            Uri.parse("http://192.168.1.103:8000/api/kk-create"),
+            Uri.parse("http://192.168.0.107:8000/api/kk-create"),
             headers: {
               'Content-Type': 'application/json',
               'Accept': 'application/json',
@@ -111,6 +112,10 @@ class _AddDataKkState extends State<AddDataKk> {
                 labelText: "Nomor kartu Keluarga",
               ),
               controller: nokkController,
+              keyboardType: TextInputType.number,
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.digitsOnly
+              ],
             ),
             TextFormField(
               decoration: const InputDecoration(

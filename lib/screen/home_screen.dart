@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:sidedi/datas/menu_data.dart';
 import 'package:sidedi/screen/beranda_screen.dart';
 import 'package:sidedi/screen/kk_screen.dart';
+import 'package:sidedi/screen_admin/activitas_screen.dart';
 import 'package:sidedi/screen_admin/informasi_screen.dart';
 import 'package:sidedi/screen_admin/kelahiran_screen.dart';
 import 'package:sidedi/screen_admin/kematian_screen.dart';
@@ -103,7 +104,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         : page ==
                                                                 'kematian_screen'
                                                             ? KematianScreen()
-                                                            : Scaffold();
+                                                            : page ==
+                                                                    'activitas_screen'
+                                                                ? ActivitasScreen()
+                                                                : Scaffold();
                               },
                             ),
                           );
@@ -141,14 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           GestureDetector(
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) {
-                    return BerandaScreen();
-                  },
-                ),
-              );
+              showAlertDialog(context);
             },
             child: Container(
               alignment: Alignment.centerRight,
@@ -191,4 +188,37 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+}
+
+showAlertDialog(BuildContext context) {
+  // set up the button
+  Widget okButton = TextButton(
+    child: Text("OK"),
+    onPressed: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) {
+            return BerandaScreen();
+          },
+        ),
+      );
+    },
+  );
+  // set up the AlertDialog
+  AlertDialog alert = AlertDialog(
+    title: Text("Keluar"),
+    content: Text("Apakah anda yakin ingin keluar."),
+    actions: [
+      okButton,
+    ],
+  );
+
+  // show the dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
+    },
+  );
 }

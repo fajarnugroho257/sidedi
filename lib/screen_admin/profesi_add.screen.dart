@@ -72,7 +72,7 @@ class _ProfesiAddScreenState extends State<ProfesiAddScreen> {
     try {
       final response = await http
           .post(
-            Uri.parse("http://192.168.1.103:8000/api/profesi/create"),
+            Uri.parse("http://192.168.0.107:8000/api/profesi/create"),
             headers: {
               'Content-Type': 'application/json',
               'Accept': 'application/json',

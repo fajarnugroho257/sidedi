@@ -126,7 +126,7 @@ class _KematianScreenState extends State<KematianScreen> {
         "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNzIwNzEzNjY1LCJleHAiOjE3MjA3MTcyNjUsIm5iZiI6MTcyMDcxMzY2NSwianRpIjoiOTV3UFVhbEpsYnlaZ1ZPUiIsInN1YiI6IjEiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.HUoVxlDj-3O5SHtWOAcfJnMCXgHjFm9WppTeOVq1NZE";
     final response = await http.get(
       Uri.parse(
-          "http://192.168.1.103:8000/api/kematian-index/$_currentPagePagination"),
+          "http://192.168.0.107:8000/api/kematian-index/$_currentPagePagination"),
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -260,8 +260,10 @@ class ItemList extends StatelessWidget {
                             ),
                             GestureDetector(
                               onTap: () {
-                                deleteData(list[i]['kematian_id'], context);
-                                // print(list[i]['kematian_id']);
+                                showAlertDialog(
+                                  context,
+                                  list[i]['kematian_id'],
+                                );
                               },
                               child: Row(
                                 children: [
@@ -297,7 +299,7 @@ class MyWidget extends StatelessWidget {
 void deleteData(kematian_id, BuildContext context) {
   print(kematian_id);
   print('delete');
-  var url = "http://192.168.1.103:8000/api/hapus-kematian";
+  var url = "http://192.168.0.107:8000/api/hapus-kematian";
   http.post(
     Uri.parse(url),
     headers: {
@@ -330,5 +332,31 @@ void _DeleteData(BuildContext context, String error) {
       action:
           SnackBarAction(label: 'OK', onPressed: scaffold.hideCurrentSnackBar),
     ),
+  );
+}
+
+showAlertDialog(BuildContext context, kematian_id) {
+  // set up the button
+  Widget okButton = TextButton(
+    child: Text("OK"),
+    onPressed: () {
+      deleteData(kematian_id, context);
+    },
+  );
+  // set up the AlertDialog
+  AlertDialog alert = AlertDialog(
+    title: Text("Hapus"),
+    content: Text("Apakah anda yakin menghapus data ini ?."),
+    actions: [
+      okButton,
+    ],
+  );
+
+  // show the dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
+    },
   );
 }

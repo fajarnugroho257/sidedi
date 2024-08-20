@@ -8,9 +8,15 @@ List<MenuModel> menuIcons = [
   MenuModel(title: 'Penduduk', screen: 'penduduk_screen'),
   MenuModel(title: 'Kelahiran', screen: 'kelahiran_screen'),
   MenuModel(title: 'Kematian', screen: 'kematian_screen'),
+  MenuModel(title: 'Aktivitas', screen: 'activitas_screen'),
 ];
 
 List<MenuModel> menuRt = [
   MenuModel(title: 'Kegiatan / Informasi', screen: 'informasi_screen'),
   MenuModel(title: 'Penduduk', screen: 'penduduk_screen'),
+  MenuModel(title: 'Cari Ktp', screen: 'surat_screen'),
+  MenuModel(title: 'Cari KK', screen: 'surat_screen'),
+  MenuModel(title: 'Cari Surat Kelahiran', screen: 'surat_screen'),
+  MenuModel(title: 'Cari Surat Kematian', screen: 'surat_screen'),
+  MenuModel(title: 'Cari Surat Pindah Tempat', screen: 'surat_screen'),
 ];

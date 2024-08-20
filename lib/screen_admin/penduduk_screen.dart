@@ -50,7 +50,7 @@ class _PendudukScreenState extends State<PendudukScreen> {
         "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNzIwNzEzNjY1LCJleHAiOjE3MjA3MTcyNjUsIm5iZiI6MTcyMDcxMzY2NSwianRpIjoiOTV3UFVhbEpsYnlaZ1ZPUiIsInN1YiI6IjEiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.HUoVxlDj-3O5SHtWOAcfJnMCXgHjFm9WppTeOVq1NZE";
     final response = await http.get(
       Uri.parse(
-          "http://192.168.1.103:8000/api/penduduk-index/$_currentPagePagination"),
+          "http://192.168.0.107:8000/api/penduduk-index/$_currentPagePagination"),
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -73,7 +73,7 @@ class _PendudukScreenState extends State<PendudukScreen> {
   Future<List<KkModel>> getKk() async {
     try {
       final response =
-          await http.get(Uri.parse('http://192.168.1.103:8000/api/kk-index'));
+          await http.get(Uri.parse('http://192.168.0.107:8000/api/kk-index'));
       final body = json.decode(response.body) as List;
       if (response.statusCode == 200) {
         return body.map((dynamic json) {
@@ -354,8 +354,10 @@ class ItemList extends StatelessWidget {
                             ),
                             GestureDetector(
                               onTap: () {
-                                deleteData(list[i]['nik'], context);
-                                // print(list[i]['no_kk']);
+                                showAlertDialog(
+                                  context,
+                                  list[i]['nik'],
+                                );
                               },
                               child: Row(
                                 children: [
@@ -391,7 +393,7 @@ class MyWidget extends StatelessWidget {
 void deleteData(nik, BuildContext context) {
   print(nik);
   print('delete');
-  var url = "http://192.168.1.103:8000/api/penduduk-hapus";
+  var url = "http://192.168.0.107:8000/api/penduduk-hapus";
   http.post(
     Uri.parse(url),
     headers: {
@@ -424,5 +426,31 @@ void _DeleteData(BuildContext context, String error) {
       action:
           SnackBarAction(label: 'OK', onPressed: scaffold.hideCurrentSnackBar),
     ),
+  );
+}
+
+showAlertDialog(BuildContext context, nik) {
+  // set up the button
+  Widget okButton = TextButton(
+    child: Text("OK"),
+    onPressed: () {
+      deleteData(nik, context);
+    },
+  );
+  // set up the AlertDialog
+  AlertDialog alert = AlertDialog(
+    title: Text("Hapus"),
+    content: Text("Apakah anda yakin menghapus data ini ?."),
+    actions: [
+      okButton,
+    ],
+  );
+
+  // show the dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
+    },
   );
 }

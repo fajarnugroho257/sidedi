@@ -4,72 +4,65 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:sidedi/screen_admin/kelahiran_screen.dart';
-import 'package:sidedi/screen_admin/kematian_screen.dart';
-import 'package:sidedi/screen_admin/penduduk_screen.dart';
-import '../Models/kk_model.dart';
-import '../Models/profesi_model.dart';
-import 'package:intl/intl.dart';
+import 'package:sidedi/models/pddk_model.dart';
+import 'package:sidedi/screen/rt_screen.dart';
+import 'package:http/http.dart' as http;
 
-class KematianDetailScreen extends StatefulWidget {
-  final int? kematian_id_params;
-  const KematianDetailScreen({this.kematian_id_params});
+class SuratScreen extends StatefulWidget {
+  String? judul;
+  SuratScreen({this.judul});
 
   @override
-  State<KematianDetailScreen> createState() => _KematianDetailScreenState();
+  State<SuratScreen> createState() => _SuratScreenState();
 }
 
-class _KematianDetailScreenState extends State<KematianDetailScreen> {
-  late String _localPath;
-  late bool _permissionReady;
-  TargetPlatform? platform;
-
+class _SuratScreenState extends State<SuratScreen> {
+  var nik_pddk;
   var nama_lengkap;
   var tempat_lahir;
-  var nik;
-  var no_kk;
   var tgl_lahir;
-  var agama;
-  var profesi_nama;
-  var kewarganegaraan;
+  var status_perkawinan;
 
-  @override
-  void initState() {
-    super.initState();
-    //in first time, this method will be executed
-    _getData();
-
-    if (Platform.isAndroid) {
-      platform = TargetPlatform.android;
-    } else {
-      platform = TargetPlatform.iOS;
+  Future<List<PddkModel>> getPostApi() async {
+    try {
+      final response = await http
+          .get(Uri.parse('http://192.168.0.107:8000/api/penduduk-index'));
+      final body = json.decode(response.body) as List;
+      if (response.statusCode == 200) {
+        return body.map((dynamic json) {
+          final map = json as Map<String, dynamic>;
+          return PddkModel(
+            nik: map['nik'] as String,
+            nama_lengkap: map['nama_lengkap'] as String,
+          );
+        }).toList();
+      }
+    } on SocketException {
+      await Future.delayed(const Duration(milliseconds: 1800));
+      throw Exception('No Internet Connection');
+    } on TimeoutException {
+      throw Exception('');
     }
+    throw Exception('error fetching data');
   }
 
-  //
-  Future _getData() async {
-    print('sini');
-    print(widget.kematian_id_params);
+  Future getData(nik) async {
     try {
-      final response = await http.get(Uri.parse(
-          "http://192.168.0.107:8000/api/kematian-edit/${widget.kematian_id_params}"));
-      print(response.body);
+      final response = await http
+          .get(Uri.parse("http://192.168.0.107:8000/api/penduduk-edit/${nik}"));
+
       // if response successful
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        print(data);
+        print(data['data']['nik']);
         setState(() {
-          nik = data['data']['nik'];
-          no_kk = data['data']['no_kk'];
+          status_perkawinan = data['data']['status_perkawinan'];
+          nik_pddk = data['data']['nik'];
           nama_lengkap = data['data']['nama_lengkap'];
           tempat_lahir = data['data']['tempat_lahir'];
           tgl_lahir = data['data']['tgl_lahir'];
-          agama = data['data']['agama'];
-          profesi_nama = data['data']['profesi_nama'];
-          kewarganegaraan = data['data']['kewarganegaraan'];
         });
       }
     } catch (e) {
@@ -77,6 +70,21 @@ class _KematianDetailScreenState extends State<KematianDetailScreen> {
     }
   }
 
+  @override
+  void initState() {
+    super.initState();
+    //in first time, this method will be executed
+    if (Platform.isAndroid) {
+      platform = TargetPlatform.android;
+    } else {
+      platform = TargetPlatform.iOS;
+    }
+  }
+
+  // download
+  late String _localPath;
+  late bool _permissionReady;
+  TargetPlatform? platform;
   Future<bool> _checkPermission() async {
     if (platform == TargetPlatform.android) {
       final status = await Permission.storage.status;
@@ -113,10 +121,11 @@ class _KematianDetailScreenState extends State<KematianDetailScreen> {
     }
   }
 
+  var nikController;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
@@ -125,21 +134,66 @@ class _KematianDetailScreenState extends State<KematianDetailScreen> {
               context,
               MaterialPageRoute(
                 builder: (context) {
-                  return KematianScreen();
+                  return RtScreen(
+                    role: 'rt',
+                  );
                 },
               ),
             );
           },
         ),
-        title: Text("Detail Data Kematian"),
+        title: Text("${widget.judul}"),
         centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
           children: [
+            FutureBuilder<List<PddkModel>>(
+              future: getPostApi(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return DropdownButton(
+                    // Initial Value
+                    value: nikController,
+                    hint: Text('Pilih No KK / Penduduk'),
+                    isExpanded: true,
+                    // Down Arrow Icon
+                    icon: const Icon(Icons.keyboard_arrow_down),
+                    // Array list of items
+                    items: snapshot.data!.map((item) {
+                      return DropdownMenuItem(
+                        value: item.nik,
+                        child: Text(item.nama_lengkap.toString()),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        nikController = value;
+                      });
+                    },
+                  );
+                } else {
+                  return Center(child: const CircularProgressIndicator());
+                }
+              },
+            ),
             const SizedBox(
-              height: 15,
+              height: 10,
+            ),
+            MaterialButton(
+              color: Color.fromARGB(255, 65, 203, 70),
+              onPressed: () {
+                getData(nikController);
+                // addData();
+              },
+              child: Text(
+                "${widget.judul}",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            const SizedBox(
+              height: 50,
             ),
             Container(
               child: Row(
@@ -156,98 +210,80 @@ class _KematianDetailScreenState extends State<KematianDetailScreen> {
                 ],
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 15,
             ),
             Container(
               child: Row(
                 children: [
                   SizedBox(
-                    child: Text('Tempat / Taggal Lahir'),
+                    child: Text('Tempat & Tgl Lahir'),
                     width: 130,
                   ),
                   SizedBox(
                     child: Text(':'),
                     width: 20,
                   ),
-                  Text('$tempat_lahir / ${tgl_lahir}')
+                  Text('$tempat_lahir / $tgl_lahir')
                 ],
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 15,
             ),
             Container(
               child: Row(
                 children: [
                   SizedBox(
-                    child: Text('Agama'),
+                    child: Text('NIK'),
                     width: 130,
                   ),
                   SizedBox(
                     child: Text(':'),
                     width: 20,
                   ),
-                  Text('$agama')
+                  Text('$nik_pddk')
                 ],
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 15,
             ),
             Container(
               child: Row(
                 children: [
                   SizedBox(
-                    child: Text('Pekerjaan'),
+                    child: Text('Status Perkawinan'),
                     width: 130,
                   ),
                   SizedBox(
                     child: Text(':'),
                     width: 20,
                   ),
-                  Text('$profesi_nama')
+                  Text('$status_perkawinan')
                 ],
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 15,
             ),
             Container(
               child: Row(
                 children: [
                   SizedBox(
-                    child: Text('No KTP / KK'),
+                    child: Text('Keperluan'),
                     width: 130,
                   ),
                   SizedBox(
                     child: Text(':'),
                     width: 20,
                   ),
-                  Text('$nik / $no_kk')
+                  Text(widget.judul.toString())
                 ],
               ),
             ),
             SizedBox(
-              height: 15,
-            ),
-            Container(
-              child: Row(
-                children: [
-                  SizedBox(
-                    child: Text('Kewarganegaraan'),
-                    width: 130,
-                  ),
-                  SizedBox(
-                    child: Text(':'),
-                    width: 20,
-                  ),
-                  Text('$kewarganegaraan')
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 15,
+              height: 30,
             ),
             MaterialButton(
               color: Color.fromARGB(255, 68, 134, 201),
@@ -256,13 +292,13 @@ class _KematianDetailScreenState extends State<KematianDetailScreen> {
                 if (_permissionReady) {
                   await _prepareSaveDir();
                   print("Downloading");
-                  print(widget.kematian_id_params);
+                  print(nikController);
                   try {
+                    var cari = widget.judul?.replaceAll(' ', '');
+                    print(cari);
                     await Dio().download(
-                        "http://192.168.0.107:8000/api/download-kematian/${widget.kematian_id_params}",
-                        _localPath +
-                            "/" +
-                            "kematian-${widget.kematian_id_params}-kematian.pdf");
+                        "http://192.168.0.107:8000/api/download-keperluan/${nikController}/${cari}",
+                        _localPath + "/" + "SURAT ${widget.judul}.pdf");
                     print("Download Completed.");
                     print(_localPath);
                     final scaffold = ScaffoldMessenger.of(context);
@@ -287,8 +323,8 @@ class _KematianDetailScreenState extends State<KematianDetailScreen> {
                   }
                 }
               },
-              child: const Text(
-                "Cetak Surat Kematian",
+              child: Text(
+                "Cetak ${widget.judul}",
                 style: TextStyle(color: Colors.white),
               ),
             ),

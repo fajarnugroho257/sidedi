@@ -127,7 +127,7 @@ class _InformasiAddScreenState extends State<InformasiAddScreen> {
       print(_imageFile!.path);
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse("http://192.168.1.103:8000/api/addimage"),
+        Uri.parse("http://192.168.0.107:8000/api/addimage"),
       );
       request.fields['info_text'] = info_textController.text;
       request.files

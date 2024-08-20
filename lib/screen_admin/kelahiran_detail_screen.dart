@@ -52,7 +52,7 @@ class _KelahiranDetailScreenState extends State<KelahiranDetailScreen> {
     print(widget.kelahiran_id_params);
     try {
       final response = await http.get(Uri.parse(
-          "http://192.168.1.103:8000/api/kelahiran-edit/${widget.kelahiran_id_params}"));
+          "http://192.168.0.107:8000/api/kelahiran-edit/${widget.kelahiran_id_params}"));
       print(response.body);
       // if response successful
       if (response.statusCode == 200) {
@@ -254,7 +254,7 @@ class _KelahiranDetailScreenState extends State<KelahiranDetailScreen> {
                   print(widget.kelahiran_id_params);
                   try {
                     await Dio().download(
-                        "http://192.168.1.103:8000/api/download-kelahiran/${widget.kelahiran_id_params}",
+                        "http://192.168.0.107:8000/api/download-kelahiran/${widget.kelahiran_id_params}",
                         _localPath +
                             "/" +
                             "kelahiran-${widget.kelahiran_id_params}-kelahiran.pdf");

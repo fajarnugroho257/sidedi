@@ -124,7 +124,7 @@ class _KkScreenState extends State<KkScreen> {
         "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNzIwNzEzNjY1LCJleHAiOjE3MjA3MTcyNjUsIm5iZiI6MTcyMDcxMzY2NSwianRpIjoiOTV3UFVhbEpsYnlaZ1ZPUiIsInN1YiI6IjEiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.HUoVxlDj-3O5SHtWOAcfJnMCXgHjFm9WppTeOVq1NZE";
     final response = await http.get(
       Uri.parse(
-          "http://192.168.1.103:8000/api/kk-index_1/$_currentPagePagination"),
+          "http://192.168.0.107:8000/api/kk-index_1/$_currentPagePagination"),
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -196,7 +196,7 @@ class ItemList extends StatelessWidget {
                               width: 260,
                               child: Text(
                                 (i + 1).toString() +
-                                    '. Nomor kartu keluarga : ${list[i]['no_kk']} \n Nama Kepala Keluarga : ${list[i]['nama_kk']}',
+                                    '. Nomor kK : ${list[i]['no_kk']} \n Nama Kepala Keluarga : ${list[i]['nama_kk']}',
                                 style: TextStyle(
                                   fontFamily: "poppins",
                                   color: Colors.white,
@@ -218,7 +218,7 @@ class ItemList extends StatelessWidget {
                                     },
                                   ),
                                 );
-                                print(list[i]['kelahiran_id']);
+                                print(list[i]['no_kk']);
                               },
                               child: Row(
                                 children: [
@@ -231,8 +231,10 @@ class ItemList extends StatelessWidget {
                             ),
                             GestureDetector(
                               onTap: () {
-                                deleteData(list[i]['kelahiran_id'], context);
-                                // print(list[i]['kelahiran_id']);
+                                showAlertDialog(
+                                  context,
+                                  list[i]['no_kk'],
+                                );
                               },
                               child: Row(
                                 children: [
@@ -267,10 +269,10 @@ class MyWidget extends StatelessWidget {
   }
 }
 
-void deleteData(kelahiran_id, BuildContext context) {
-  print(kelahiran_id);
-  print('delete');
-  var url = "http://192.168.1.103:8000/api/hapus-kelahiran";
+void deleteData(no_kk, BuildContext context) {
+  print(no_kk);
+  print('delete YAA');
+  var url = "http://192.168.0.107:8000/api/kk-hapus";
   http.post(
     Uri.parse(url),
     headers: {
@@ -280,7 +282,7 @@ void deleteData(kelahiran_id, BuildContext context) {
     },
     body: jsonEncode(
       {
-        "kelahiran_id": kelahiran_id,
+        "no_kk": no_kk,
       },
     ),
   );
@@ -303,5 +305,31 @@ void _DeleteData(BuildContext context, String error) {
       action:
           SnackBarAction(label: 'OK', onPressed: scaffold.hideCurrentSnackBar),
     ),
+  );
+}
+
+showAlertDialog(BuildContext context, kematian_id) {
+  // set up the button
+  Widget okButton = TextButton(
+    child: Text("OK"),
+    onPressed: () {
+      deleteData(kematian_id, context);
+    },
+  );
+  // set up the AlertDialog
+  AlertDialog alert = AlertDialog(
+    title: Text("Hapus"),
+    content: Text("Apakah anda yakin menghapus data ini ?."),
+    actions: [
+      okButton,
+    ],
+  );
+
+  // show the dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
+    },
   );
 }

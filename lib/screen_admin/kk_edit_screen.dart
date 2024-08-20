@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:sidedi/screen/kk_screen.dart';
@@ -27,7 +28,7 @@ class _KkEditScreenState extends State<KkEditScreen> {
   Future _getData() async {
     try {
       final response = await http.get(
-          Uri.parse("http://192.168.1.103:8000/api/kk-edit/${widget.no_kk}"));
+          Uri.parse("http://192.168.0.107:8000/api/kk-edit/${widget.no_kk}"));
 
       // if response successful
       if (response.statusCode == 200) {
@@ -50,7 +51,7 @@ class _KkEditScreenState extends State<KkEditScreen> {
     try {
       final response = await http
           .post(
-            Uri.parse("http://192.168.1.103:8000/api/kk-edit-proses"),
+            Uri.parse("http://192.168.0.107:8000/api/kk-edit-proses"),
             headers: {
               'Content-Type': 'application/json',
               'Accept': 'application/json',
@@ -125,6 +126,10 @@ class _KkEditScreenState extends State<KkEditScreen> {
                 labelText: "Nomor kartu Keluarga",
               ),
               controller: no_kkController,
+              keyboardType: TextInputType.number,
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.digitsOnly
+              ],
             ),
             TextFormField(
               decoration: const InputDecoration(

@@ -7,34 +7,36 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:sidedi/screen_admin/kelahiran_screen.dart';
-import 'package:sidedi/screen_admin/kematian_screen.dart';
+import 'package:sidedi/screen/data_penduduk_screen.dart';
 import 'package:sidedi/screen_admin/penduduk_screen.dart';
 import '../Models/kk_model.dart';
 import '../Models/profesi_model.dart';
 import 'package:intl/intl.dart';
 
-class KematianDetailScreen extends StatefulWidget {
-  final int? kematian_id_params;
-  const KematianDetailScreen({this.kematian_id_params});
+class DataPendudukDetailScreen extends StatefulWidget {
+  final String? nik_params;
+  const DataPendudukDetailScreen({this.nik_params});
 
   @override
-  State<KematianDetailScreen> createState() => _KematianDetailScreenState();
+  State<DataPendudukDetailScreen> createState() =>
+      _DataPendudukDetailScreenState();
 }
 
-class _KematianDetailScreenState extends State<KematianDetailScreen> {
+class _DataPendudukDetailScreenState extends State<DataPendudukDetailScreen> {
   late String _localPath;
   late bool _permissionReady;
   TargetPlatform? platform;
 
-  var nama_lengkap;
-  var tempat_lahir;
   var nik;
   var no_kk;
-  var tgl_lahir;
-  var agama;
   var profesi_nama;
+  var nama_lengkap;
+  var tempat_lahir;
+  var tgl_lahir;
+  var alamat;
+  var agama;
   var kewarganegaraan;
+  var status;
 
   @override
   void initState() {
@@ -51,65 +53,29 @@ class _KematianDetailScreenState extends State<KematianDetailScreen> {
 
   //
   Future _getData() async {
-    print('sini');
-    print(widget.kematian_id_params);
     try {
       final response = await http.get(Uri.parse(
-          "http://192.168.0.107:8000/api/kematian-edit/${widget.kematian_id_params}"));
-      print(response.body);
+          "http://192.168.0.107:8000/api/penduduk-edit/${widget.nik_params}"));
+
       // if response successful
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         print(data);
         setState(() {
-          nik = data['data']['nik'];
-          no_kk = data['data']['no_kk'];
+          no_kk = data['data']['nama_kk'].toString();
+          profesi_nama = data['data']['profesi_nama'];
+          status = data['data']['status'];
+          nik = data['data']['nik'].toString();
           nama_lengkap = data['data']['nama_lengkap'];
           tempat_lahir = data['data']['tempat_lahir'];
           tgl_lahir = data['data']['tgl_lahir'];
+          alamat = data['data']['alamat'];
           agama = data['data']['agama'];
-          profesi_nama = data['data']['profesi_nama'];
           kewarganegaraan = data['data']['kewarganegaraan'];
         });
       }
     } catch (e) {
       print(e);
-    }
-  }
-
-  Future<bool> _checkPermission() async {
-    if (platform == TargetPlatform.android) {
-      final status = await Permission.storage.status;
-      if (status != PermissionStatus.granted) {
-        final result = await Permission.storage.request();
-        if (result == PermissionStatus.granted) {
-          return true;
-        }
-      } else {
-        return true;
-      }
-    } else {
-      return true;
-    }
-    return false;
-  }
-
-  Future<void> _prepareSaveDir() async {
-    _localPath = (await _findLocalPath())!;
-    final savedDir = Directory(_localPath);
-    bool hasExisted = await savedDir.exists();
-    if (!hasExisted) {
-      savedDir.create();
-    }
-  }
-
-  Future<String?> _findLocalPath() async {
-    if (platform == TargetPlatform.android) {
-      // return "/sdcard/download";
-      return "/storage/emulated/0/Download";
-    } else {
-      var directory = await getApplicationDocumentsDirectory();
-      return directory.path + Platform.pathSeparator + 'Download';
     }
   }
 
@@ -125,13 +91,13 @@ class _KematianDetailScreenState extends State<KematianDetailScreen> {
               context,
               MaterialPageRoute(
                 builder: (context) {
-                  return KematianScreen();
+                  return DataPendudukScreen();
                 },
               ),
             );
           },
         ),
-        title: Text("Detail Data Kematian"),
+        title: Text("Detail Data Penduduk"),
         centerTitle: true,
       ),
       body: Padding(
@@ -145,7 +111,43 @@ class _KematianDetailScreenState extends State<KematianDetailScreen> {
               child: Row(
                 children: [
                   SizedBox(
-                    child: Text('Nama'),
+                    child: Text('Kartu Keluarga'),
+                    width: 130,
+                  ),
+                  SizedBox(
+                    child: Text(':'),
+                    width: 20,
+                  ),
+                  Text('$no_kk')
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 15,
+            ),
+            Container(
+              child: Row(
+                children: [
+                  SizedBox(
+                    child: Text('NIK'),
+                    width: 130,
+                  ),
+                  SizedBox(
+                    child: Text(':'),
+                    width: 20,
+                  ),
+                  Text('$nik')
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 15,
+            ),
+            Container(
+              child: Row(
+                children: [
+                  SizedBox(
+                    child: Text('Nama Lengkap'),
                     width: 130,
                   ),
                   SizedBox(
@@ -163,14 +165,50 @@ class _KematianDetailScreenState extends State<KematianDetailScreen> {
               child: Row(
                 children: [
                   SizedBox(
-                    child: Text('Tempat / Taggal Lahir'),
+                    child: Text('Tempat Lahir'),
                     width: 130,
                   ),
                   SizedBox(
                     child: Text(':'),
                     width: 20,
                   ),
-                  Text('$tempat_lahir / ${tgl_lahir}')
+                  Text('$tempat_lahir')
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 15,
+            ),
+            Container(
+              child: Row(
+                children: [
+                  SizedBox(
+                    child: Text('Tanggal Lahir'),
+                    width: 130,
+                  ),
+                  SizedBox(
+                    child: Text(':'),
+                    width: 20,
+                  ),
+                  Text('$tgl_lahir')
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 15,
+            ),
+            Container(
+              child: Row(
+                children: [
+                  SizedBox(
+                    child: Text('Alamat'),
+                    width: 130,
+                  ),
+                  SizedBox(
+                    child: Text(':'),
+                    width: 20,
+                  ),
+                  Text('$alamat')
                 ],
               ),
             ),
@@ -199,7 +237,7 @@ class _KematianDetailScreenState extends State<KematianDetailScreen> {
               child: Row(
                 children: [
                   SizedBox(
-                    child: Text('Pekerjaan'),
+                    child: Text('Profesi'),
                     width: 130,
                   ),
                   SizedBox(
@@ -210,25 +248,7 @@ class _KematianDetailScreenState extends State<KematianDetailScreen> {
                 ],
               ),
             ),
-            SizedBox(
-              height: 15,
-            ),
-            Container(
-              child: Row(
-                children: [
-                  SizedBox(
-                    child: Text('No KTP / KK'),
-                    width: 130,
-                  ),
-                  SizedBox(
-                    child: Text(':'),
-                    width: 20,
-                  ),
-                  Text('$nik / $no_kk')
-                ],
-              ),
-            ),
-            SizedBox(
+            const SizedBox(
               height: 15,
             ),
             Container(
@@ -249,48 +269,23 @@ class _KematianDetailScreenState extends State<KematianDetailScreen> {
             SizedBox(
               height: 15,
             ),
-            MaterialButton(
-              color: Color.fromARGB(255, 68, 134, 201),
-              onPressed: () async {
-                _permissionReady = await _checkPermission();
-                if (_permissionReady) {
-                  await _prepareSaveDir();
-                  print("Downloading");
-                  print(widget.kematian_id_params);
-                  try {
-                    await Dio().download(
-                        "http://192.168.0.107:8000/api/download-kematian/${widget.kematian_id_params}",
-                        _localPath +
-                            "/" +
-                            "kematian-${widget.kematian_id_params}-kematian.pdf");
-                    print("Download Completed.");
-                    print(_localPath);
-                    final scaffold = ScaffoldMessenger.of(context);
-                    scaffold.showSnackBar(
-                      SnackBar(
-                        content: Text('Download Completed.$_localPath'),
-                        action: SnackBarAction(
-                            label: 'OK',
-                            onPressed: scaffold.hideCurrentSnackBar),
-                      ),
-                    );
-                  } catch (e) {
-                    final scaffold = ScaffoldMessenger.of(context);
-                    scaffold.showSnackBar(
-                      SnackBar(
-                        content: Text("Download Failed.\n\n" + e.toString()),
-                        action: SnackBarAction(
-                            label: 'OK',
-                            onPressed: scaffold.hideCurrentSnackBar),
-                      ),
-                    );
-                  }
-                }
-              },
-              child: const Text(
-                "Cetak Surat Kematian",
-                style: TextStyle(color: Colors.white),
+            Container(
+              child: Row(
+                children: [
+                  SizedBox(
+                    child: Text('Status'),
+                    width: 130,
+                  ),
+                  SizedBox(
+                    child: Text(':'),
+                    width: 20,
+                  ),
+                  Text('$status')
+                ],
               ),
+            ),
+            SizedBox(
+              height: 15,
             ),
           ],
         ),

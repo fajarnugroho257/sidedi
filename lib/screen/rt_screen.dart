@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:sidedi/datas/menu_data.dart';
+import 'package:sidedi/rt_screen/surat_screen.dart';
 import 'package:sidedi/screen/beranda_screen.dart';
 import 'package:sidedi/screen/kk_screen.dart';
 import 'package:sidedi/screen_admin/informasi_screen.dart';
@@ -83,6 +84,7 @@ class _RtScreenState extends State<RtScreen> {
                       (icon) => GestureDetector(
                         onTap: () {
                           final page = icon.screen;
+                          final title = icon.title;
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -95,7 +97,26 @@ class _RtScreenState extends State<RtScreen> {
                                         ? InformasiScreen(
                                             role: role_pengguna.toString(),
                                           )
-                                        : Scaffold();
+                                        : title == 'Cari Ktp'
+                                            ? SuratScreen(judul: 'Cari KTP')
+                                            : title == 'Cari KK'
+                                                ? SuratScreen(judul: 'Cari KK')
+                                                : title ==
+                                                        'Cari Surat Kelahiran'
+                                                    ? SuratScreen(
+                                                        judul:
+                                                            'Cari Surat Kelahiran')
+                                                    : title ==
+                                                            'Cari Surat Kematian'
+                                                        ? SuratScreen(
+                                                            judul:
+                                                                'Cari Surat Kematian')
+                                                        : title ==
+                                                                'Cari Surat Pindah Tempat'
+                                                            ? SuratScreen(
+                                                                judul:
+                                                                    'Cari Surat Pindah Tempat')
+                                                            : Scaffold();
                               },
                             ),
                           );
@@ -129,14 +150,7 @@ class _RtScreenState extends State<RtScreen> {
           ),
           GestureDetector(
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) {
-                    return BerandaScreen();
-                  },
-                ),
-              );
+              showAlertDialog(context);
             },
             child: Container(
               alignment: Alignment.centerRight,
@@ -179,4 +193,37 @@ class _RtScreenState extends State<RtScreen> {
       ),
     );
   }
+}
+
+showAlertDialog(BuildContext context) {
+  // set up the button
+  Widget okButton = TextButton(
+    child: Text("OK"),
+    onPressed: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) {
+            return BerandaScreen();
+          },
+        ),
+      );
+    },
+  );
+  // set up the AlertDialog
+  AlertDialog alert = AlertDialog(
+    title: Text("Keluar"),
+    content: Text("Apakah anda yakin ingin keluar."),
+    actions: [
+      okButton,
+    ],
+  );
+
+  // show the dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
+    },
+  );
 }

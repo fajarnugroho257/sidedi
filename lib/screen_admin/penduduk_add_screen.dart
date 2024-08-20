@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:sidedi/screen_admin/penduduk_screen.dart';
 import '../Models/kk_model.dart';
@@ -20,7 +21,7 @@ class _PendudukAddScreenState extends State<PendudukAddScreen> {
   Future<List<KkModel>> getKk() async {
     try {
       final response =
-          await http.get(Uri.parse('http://192.168.1.103:8000/api/kk-index'));
+          await http.get(Uri.parse('http://192.168.0.107:8000/api/kk-index'));
       final body = json.decode(response.body) as List;
       if (response.statusCode == 200) {
         return body.map((dynamic json) {
@@ -43,7 +44,7 @@ class _PendudukAddScreenState extends State<PendudukAddScreen> {
   Future<List<ProfesiModel>> getProfesi() async {
     try {
       final response = await http
-          .get(Uri.parse('http://192.168.1.103:8000/api/profesi-index'));
+          .get(Uri.parse('http://192.168.0.107:8000/api/profesi-index'));
       // print(response.body);
       final body = json.decode(response.body) as List;
       if (response.statusCode == 200) {
@@ -70,6 +71,7 @@ class _PendudukAddScreenState extends State<PendudukAddScreen> {
   var profesi_idController;
   var statusController;
   var jkController;
+  var status_perkawinanController;
 
   final nikController = TextEditingController();
   final nama_lengkapController = TextEditingController();
@@ -79,6 +81,12 @@ class _PendudukAddScreenState extends State<PendudukAddScreen> {
   final agamaController = TextEditingController();
   final kewarganegaraanController = TextEditingController();
   List<String> list = <String>['aktif', 'nonaktif'];
+  List<String> status_perkawinan = <String>[
+    'BELUM KAWIN',
+    'KAWIN',
+    'CERAI HIDUP',
+    'CERAI MATI'
+  ];
   List<String> jk = <String>['L', 'P'];
   //
   @override
@@ -104,200 +112,233 @@ class _PendudukAddScreenState extends State<PendudukAddScreen> {
         title: Text("Tambah Data Penduduk"),
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: SizedBox(
-          height: 800,
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                FutureBuilder<List<KkModel>>(
-                  future: getKk(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      return DropdownButton(
-                        // Initial Value
-                        value: no_kkController,
-                        hint: Text('Pilih No KK'),
-                        isExpanded: true,
-                        // Down Arrow Icon
-                        icon: const Icon(Icons.keyboard_arrow_down),
-                        // Array list of items
-                        items: snapshot.data!.map((item) {
-                          return DropdownMenuItem(
-                            value: item.no_kk,
-                            child: Text(item.nama_kk.toString()),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          no_kkController = value;
-                          setState(() {
-                            print(no_kkController);
-                          });
-                        },
+      body: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: SizedBox(
+            height: 800,
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  FutureBuilder<List<KkModel>>(
+                    future: getKk(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return DropdownButton(
+                          // Initial Value
+                          value: no_kkController,
+                          hint: Text('Pilih No KK'),
+                          isExpanded: true,
+                          // Down Arrow Icon
+                          icon: const Icon(Icons.keyboard_arrow_down),
+                          // Array list of items
+                          items: snapshot.data!.map((item) {
+                            return DropdownMenuItem(
+                              value: item.no_kk,
+                              child: Text(item.nama_kk.toString()),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            no_kkController = value;
+                            setState(() {
+                              print(no_kkController);
+                            });
+                          },
+                        );
+                      } else {
+                        return Center(child: const CircularProgressIndicator());
+                      }
+                    },
+                  ),
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      labelText: "Nik",
+                    ),
+                    controller: nikController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter.digitsOnly
+                    ],
+                  ),
+                  FutureBuilder<List<ProfesiModel>>(
+                    future: getProfesi(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return DropdownButton(
+                          // Initial Value
+                          value: profesi_idController,
+                          hint: Text('Pilih Profesi'),
+                          isExpanded: true,
+                          // Down Arrow Icon
+                          icon: const Icon(Icons.keyboard_arrow_down),
+                          // Array list of items
+                          items: snapshot.data!.map((item) {
+                            return DropdownMenuItem(
+                              value: item.profesi_id,
+                              child: Text(item.profesi_nama.toString()),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            profesi_idController = value;
+                            setState(() {
+                              print(profesi_idController);
+                            });
+                          },
+                        );
+                      } else {
+                        return Center(child: const CircularProgressIndicator());
+                      }
+                    },
+                  ),
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      labelText: "Nama lengkap",
+                    ),
+                    controller: nama_lengkapController,
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  DropdownButton(
+                    // Initial Value
+                    value: jkController,
+                    hint: Text('Jenis Kelamin'),
+                    isExpanded: true,
+                    // Down Arrow Icon
+                    icon: const Icon(Icons.keyboard_arrow_down),
+                    // Array list of items
+                    items: jk.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
                       );
-                    } else {
-                      return Center(child: const CircularProgressIndicator());
-                    }
-                  },
-                ),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: "Nik",
-                  ),
-                  controller: nikController,
-                ),
-                FutureBuilder<List<ProfesiModel>>(
-                  future: getProfesi(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      return DropdownButton(
-                        // Initial Value
-                        value: profesi_idController,
-                        hint: Text('Pilih Profesi'),
-                        isExpanded: true,
-                        // Down Arrow Icon
-                        icon: const Icon(Icons.keyboard_arrow_down),
-                        // Array list of items
-                        items: snapshot.data!.map((item) {
-                          return DropdownMenuItem(
-                            value: item.profesi_id,
-                            child: Text(item.profesi_nama.toString()),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          profesi_idController = value;
-                          setState(() {
-                            print(profesi_idController);
-                          });
-                        },
-                      );
-                    } else {
-                      return Center(child: const CircularProgressIndicator());
-                    }
-                  },
-                ),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: "Nama lengkap",
-                  ),
-                  controller: nama_lengkapController,
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                DropdownButton(
-                  // Initial Value
-                  value: jkController,
-                  hint: Text('Jenis Kelamin'),
-                  isExpanded: true,
-                  // Down Arrow Icon
-                  icon: const Icon(Icons.keyboard_arrow_down),
-                  // Array list of items
-                  items: jk.map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    // jkController = value;
-                    print(jkController);
-                    setState(
-                      () {
-                        jkController = value;
-                      },
-                    );
-                  },
-                ),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: "Alamat",
-                  ),
-                  controller: alamatController,
-                ),
-                TextField(
-                  controller: tgl_lahirController,
-                  decoration: const InputDecoration(labelText: "Tangga Lahir"),
-                  readOnly: true,
-                  onTap: () async {
-                    DateTime? pickedDate = await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: DateTime(1989),
-                        lastDate: DateTime(2101));
-
-                    if (pickedDate != null) {
-                      print(pickedDate);
-                      String formattedDate =
-                          DateFormat('yyyy-MM-dd').format(pickedDate);
-                      print(formattedDate);
+                    }).toList(),
+                    onChanged: (value) {
+                      // jkController = value;
+                      print(jkController);
                       setState(
                         () {
-                          tgl_lahirController.text = formattedDate;
+                          jkController = value;
                         },
                       );
-                    } else {
-                      print("Date is not selected");
-                    }
-                  },
-                ),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: "Tempat Lahir",
+                    },
                   ),
-                  controller: tempat_lahirController,
-                ),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: "Agama",
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      labelText: "Alamat",
+                    ),
+                    controller: alamatController,
                   ),
-                  controller: agamaController,
-                ),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: "Kewarganegaraan",
+                  TextField(
+                    controller: tgl_lahirController,
+                    decoration:
+                        const InputDecoration(labelText: "Tangga Lahir"),
+                    readOnly: true,
+                    onTap: () async {
+                      DateTime? pickedDate = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(1989),
+                          lastDate: DateTime(2101));
+
+                      if (pickedDate != null) {
+                        print(pickedDate);
+                        String formattedDate =
+                            DateFormat('yyyy-MM-dd').format(pickedDate);
+                        print(formattedDate);
+                        setState(
+                          () {
+                            tgl_lahirController.text = formattedDate;
+                          },
+                        );
+                      } else {
+                        print("Date is not selected");
+                      }
+                    },
                   ),
-                  controller: kewarganegaraanController,
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                DropdownButton(
-                  // Initial Value
-                  value: statusController,
-                  hint: Text('Status'),
-                  isExpanded: true,
-                  // Down Arrow Icon
-                  icon: const Icon(Icons.keyboard_arrow_down),
-                  // Array list of items
-                  items: list.map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    // statusController = value;
-                    print(statusController);
-                    setState(
-                      () {
-                        statusController = value;
-                      },
-                    );
-                  },
-                ),
-                MaterialButton(
-                  color: Color.fromARGB(255, 65, 203, 70),
-                  onPressed: () {
-                    addData();
-                  },
-                  child: const Text(
-                    "Tambah",
-                    style: TextStyle(color: Colors.white),
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      labelText: "Tempat Lahir",
+                    ),
+                    controller: tempat_lahirController,
                   ),
-                ),
-              ],
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      labelText: "Agama",
+                    ),
+                    controller: agamaController,
+                  ),
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      labelText: "Kewarganegaraan",
+                    ),
+                    controller: kewarganegaraanController,
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  DropdownButton(
+                    // Initial Value
+                    value: status_perkawinanController,
+                    hint: Text('Status Perkawinan'),
+                    isExpanded: true,
+                    // Down Arrow Icon
+                    icon: const Icon(Icons.keyboard_arrow_down),
+                    // Array list of items
+                    items: status_perkawinan
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      // status_perkawinanController = value;
+                      print(status_perkawinanController);
+                      setState(
+                        () {
+                          status_perkawinanController = value;
+                        },
+                      );
+                    },
+                  ),
+                  DropdownButton(
+                    // Initial Value
+                    value: statusController,
+                    hint: Text('Status'),
+                    isExpanded: true,
+                    // Down Arrow Icon
+                    icon: const Icon(Icons.keyboard_arrow_down),
+                    // Array list of items
+                    items: list.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      // statusController = value;
+                      print(statusController);
+                      setState(
+                        () {
+                          statusController = value;
+                        },
+                      );
+                    },
+                  ),
+                  MaterialButton(
+                    color: Color.fromARGB(255, 65, 203, 70),
+                    onPressed: () {
+                      addData();
+                    },
+                    child: const Text(
+                      "Tambah",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -309,7 +350,7 @@ class _PendudukAddScreenState extends State<PendudukAddScreen> {
     try {
       final response = await http
           .post(
-            Uri.parse("http://192.168.1.103:8000/api/penduduk-create"),
+            Uri.parse("http://192.168.0.107:8000/api/penduduk-create"),
             headers: {
               'Content-Type': 'application/json',
               'Accept': 'application/json',
@@ -327,6 +368,7 @@ class _PendudukAddScreenState extends State<PendudukAddScreen> {
                 "agama": agamaController.text,
                 "kewarganegaraan": kewarganegaraanController.text,
                 "status": statusController,
+                "status_perkawinan": status_perkawinanController,
                 "jk": jkController,
               },
             ),
@@ -348,10 +390,16 @@ class _PendudukAddScreenState extends State<PendudukAddScreen> {
                 label: 'OK', onPressed: scaffold.hideCurrentSnackBar),
           ),
         );
+        no_kkController = '';
+        profesi_idController = '';
+        statusController = '';
+        jkController = '';
+        status_perkawinanController = '';
         nikController.clear();
         nama_lengkapController.clear();
         tempat_lahirController.clear();
         agamaController.clear();
+        kewarganegaraanController.clear();
         kewarganegaraanController.clear();
         //
         print('oke');

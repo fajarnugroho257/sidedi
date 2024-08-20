@@ -26,35 +26,36 @@ class _KelahiranEditScreenState extends State<KelahiranEditScreen> {
 
   // var
   var nikController;
+  var nik_ibuController;
+  var nik_ayahController;
   var kelahiran_idController;
-  var nama_anakController;
+
+  //
   var tgl_lahirController;
-  var berat_bayiController;
-  var panjang_bayiController;
+  var alamat_kelahiranController;
+  var anak_keController;
 
   Future _getData() async {
     print(widget.kelahiran_id);
     try {
       final response = await http.get(Uri.parse(
-          "http://192.168.1.103:8000/api/kelahiran-edit/${widget.kelahiran_id}"));
+          "http://192.168.0.107:8000/api/kelahiran-edit/${widget.kelahiran_id}"));
 
       // if response successful
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         print(data);
         setState(() {
-          nikController = data['data']['nik'];
           kelahiran_idController = data['data']['kelahiran_id'];
-          nama_anakController =
-              TextEditingController(text: data['data']['nama_anak']);
+          nikController = data['data']['nik'];
+          nik_ibuController = data['data']['nik_ibu'];
+          nik_ayahController = data['data']['nik_ayah'];
           tgl_lahirController =
               TextEditingController(text: data['data']['tgl_lahir']);
-          berat_bayiController =
-              TextEditingController(text: data['data']['berat_bayi']);
-          tgl_lahirController =
-              TextEditingController(text: data['data']['tgl_lahir']);
-          panjang_bayiController =
-              TextEditingController(text: data['data']['panjang_bayi']);
+          alamat_kelahiranController =
+              TextEditingController(text: data['data']['alamat_kelahiran']);
+          anak_keController =
+              TextEditingController(text: data['data']['anak_ke']);
         });
       }
     } catch (e) {
@@ -65,7 +66,7 @@ class _KelahiranEditScreenState extends State<KelahiranEditScreen> {
   Future<List<PddkModel>> getPostApi() async {
     try {
       final response = await http
-          .get(Uri.parse('http://192.168.1.103:8000/api/penduduk-index'));
+          .get(Uri.parse('http://192.168.0.107:8000/api/penduduk-index'));
       final body = json.decode(response.body) as List;
       if (response.statusCode == 200) {
         return body.map((dynamic json) {
@@ -116,7 +117,7 @@ class _KelahiranEditScreenState extends State<KelahiranEditScreen> {
                   return DropdownButton(
                     // Initial Value
                     value: nikController,
-                    hint: Text('Pilih No KK'),
+                    hint: Text('Pilih Nama Anak'),
                     isExpanded: true,
                     // Down Arrow Icon
                     icon: const Icon(Icons.keyboard_arrow_down),
@@ -139,11 +140,65 @@ class _KelahiranEditScreenState extends State<KelahiranEditScreen> {
                 }
               },
             ),
-            TextFormField(
-              decoration: const InputDecoration(
-                labelText: "Nama Anak",
-              ),
-              controller: nama_anakController,
+            FutureBuilder<List<PddkModel>>(
+              future: getPostApi(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return DropdownButton(
+                    // Initial Value
+                    value: nik_ibuController,
+                    hint: Text('Pilih Nama Ibu'),
+                    isExpanded: true,
+                    // Down Arrow Icon
+                    icon: const Icon(Icons.keyboard_arrow_down),
+                    // Array list of items
+                    items: snapshot.data!.map((item) {
+                      return DropdownMenuItem(
+                        value: item.nik,
+                        child: Text(item.nama_lengkap.toString()),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      nik_ibuController = value;
+                      setState(() {
+                        print(nik_ibuController);
+                      });
+                    },
+                  );
+                } else {
+                  return Center(child: const CircularProgressIndicator());
+                }
+              },
+            ),
+            FutureBuilder<List<PddkModel>>(
+              future: getPostApi(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return DropdownButton(
+                    // Initial Value
+                    value: nik_ayahController,
+                    hint: Text('Pilih Nama Ayah'),
+                    isExpanded: true,
+                    // Down Arrow Icon
+                    icon: const Icon(Icons.keyboard_arrow_down),
+                    // Array list of items
+                    items: snapshot.data!.map((item) {
+                      return DropdownMenuItem(
+                        value: item.nik,
+                        child: Text(item.nama_lengkap.toString()),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      nik_ayahController = value;
+                      setState(() {
+                        print(nik_ayahController);
+                      });
+                    },
+                  );
+                } else {
+                  return Center(child: const CircularProgressIndicator());
+                }
+              },
             ),
             TextField(
               controller: tgl_lahirController,
@@ -173,15 +228,15 @@ class _KelahiranEditScreenState extends State<KelahiranEditScreen> {
             ),
             TextFormField(
               decoration: const InputDecoration(
-                labelText: "Berat Bayi",
+                labelText: "Alamat Kelahiran",
               ),
-              controller: berat_bayiController,
+              controller: alamat_kelahiranController,
             ),
             TextFormField(
               decoration: const InputDecoration(
-                labelText: "Panjang Bayi",
+                labelText: "Anak Ke",
               ),
-              controller: panjang_bayiController,
+              controller: anak_keController,
             ),
             const SizedBox(
               height: 10,
@@ -205,14 +260,10 @@ class _KelahiranEditScreenState extends State<KelahiranEditScreen> {
   Future<void> addData() async {
     print('send');
     print(nikController);
-    print(nama_anakController.text);
-    print(tgl_lahirController.text);
-    print(berat_bayiController.text);
-    print(panjang_bayiController.text);
     try {
       final response = await http
           .post(
-            Uri.parse("http://192.168.1.103:8000/api/kelahiran-edit-proses"),
+            Uri.parse("http://192.168.0.107:8000/api/kelahiran-edit-proses"),
             headers: {
               'Content-Type': 'application/json',
               'Accept': 'application/json',
@@ -222,10 +273,11 @@ class _KelahiranEditScreenState extends State<KelahiranEditScreen> {
               {
                 "kelahiran_id": kelahiran_idController,
                 "nik": nikController,
-                "nama_anak": nama_anakController.text,
+                "nik_ibu": nik_ibuController,
+                "nik_ayah": nik_ayahController,
                 "tgl_lahir": tgl_lahirController.text,
-                "berat_bayi": berat_bayiController.text,
-                "panjang_bayi": panjang_bayiController.text,
+                "alamat_kelahiran": alamat_kelahiranController.text,
+                "anak_ke": anak_keController.text,
               },
             ),
           )

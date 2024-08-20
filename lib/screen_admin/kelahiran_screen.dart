@@ -120,20 +120,17 @@ class _KelahiranScreenState extends State<KelahiranScreen> {
 
   Future<List> getTotalData() async {
     var _currentPagePagination = (_currentPage + 1);
-    // print(_currentPagePagination);
-    String token =
-        "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNzIwNzEzNjY1LCJleHAiOjE3MjA3MTcyNjUsIm5iZiI6MTcyMDcxMzY2NSwianRpIjoiOTV3UFVhbEpsYnlaZ1ZPUiIsInN1YiI6IjEiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.HUoVxlDj-3O5SHtWOAcfJnMCXgHjFm9WppTeOVq1NZE";
     final response = await http.get(
       Uri.parse(
-          "http://192.168.1.103:8000/api/kelahiran-index/$_currentPagePagination"),
+          "http://192.168.0.107:8000/api/kelahiran-index/$_currentPagePagination"),
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Authorization': 'Bearer $token',
+        // 'Authorization': 'Bearer $token',
       },
     );
     var data = json.decode(response.body);
-    print(data);
+    // print(data);
     if (check == '1') {
       setState(() {
         pages = data['data']['last_page'];
@@ -259,9 +256,15 @@ class ItemList extends StatelessWidget {
                             ),
                             GestureDetector(
                               onTap: () {
-                                deleteData(list[i]['kelahiran_id'], context);
-                                // print(list[i]['kelahiran_id']);
+                                showAlertDialog(
+                                  context,
+                                  list[i]['kelahiran_id'],
+                                );
                               },
+                              // onTap: () {
+                              //   deleteData(list[i]['kelahiran_id'], context);
+                              //   // print(list[i]['kelahiran_id']);
+                              // },
                               child: Row(
                                 children: [
                                   Icon(Icons.restore_from_trash,
@@ -296,7 +299,7 @@ class MyWidget extends StatelessWidget {
 void deleteData(kelahiran_id, BuildContext context) {
   print(kelahiran_id);
   print('delete');
-  var url = "http://192.168.1.103:8000/api/hapus-kelahiran";
+  var url = "http://192.168.0.107:8000/api/hapus-kelahiran";
   http.post(
     Uri.parse(url),
     headers: {
@@ -329,5 +332,31 @@ void _DeleteData(BuildContext context, String error) {
       action:
           SnackBarAction(label: 'OK', onPressed: scaffold.hideCurrentSnackBar),
     ),
+  );
+}
+
+showAlertDialog(BuildContext context, kelahiran_id) {
+  // set up the button
+  Widget okButton = TextButton(
+    child: Text("OK"),
+    onPressed: () {
+      deleteData(kelahiran_id, context);
+    },
+  );
+  // set up the AlertDialog
+  AlertDialog alert = AlertDialog(
+    title: Text("Hapus"),
+    content: Text("Apakah anda yakin menghapus data ini ?."),
+    actions: [
+      okButton,
+    ],
+  );
+
+  // show the dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
+    },
   );
 }

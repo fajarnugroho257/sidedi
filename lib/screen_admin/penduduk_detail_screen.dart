@@ -53,7 +53,7 @@ class _PendudukDetailScreenState extends State<PendudukDetailScreen> {
   Future _getData() async {
     try {
       final response = await http.get(Uri.parse(
-          "http://192.168.1.103:8000/api/penduduk-edit/${widget.nik_params}"));
+          "http://192.168.0.107:8000/api/penduduk-edit/${widget.nik_params}"));
 
       // if response successful
       if (response.statusCode == 200) {
@@ -331,7 +331,7 @@ class _PendudukDetailScreenState extends State<PendudukDetailScreen> {
                   print(widget.nik_params);
                   try {
                     await Dio().download(
-                        "http://192.168.1.103:8000/api/download-penduduk/${widget.nik_params}",
+                        "http://192.168.0.107:8000/api/download-penduduk/${widget.nik_params}",
                         _localPath +
                             "/" +
                             "penduduk-${widget.nik_params}-nik.pdf");

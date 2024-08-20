@@ -36,7 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
     });
   }
 
-  String apiUrl = 'http://192.168.1.103:8000/api/login';
+  String apiUrl = 'http://192.168.0.107:8000/api/login';
 
   login() async {
     final response = await http.post(

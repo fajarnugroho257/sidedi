@@ -29,7 +29,7 @@ class _ProfesiEditScreenState extends State<ProfesiEditScreen> {
   Future _getData() async {
     try {
       final response = await http.get(Uri.parse(
-          "http://192.168.1.103:8000/api/profesi-edit/${widget.profesiId}"));
+          "http://192.168.0.107:8000/api/profesi-edit/${widget.profesiId}"));
 
       // if response successful
       if (response.statusCode == 200) {
@@ -102,7 +102,7 @@ class _ProfesiEditScreenState extends State<ProfesiEditScreen> {
     try {
       final response = await http
           .post(
-            Uri.parse("http://192.168.1.103:8000/api/profesi-edit-proses"),
+            Uri.parse("http://192.168.0.107:8000/api/profesi-edit-proses"),
             headers: {
               'Content-Type': 'application/json',
               'Accept': 'application/json',

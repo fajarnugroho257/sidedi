@@ -37,19 +37,26 @@ class _PendudukEditScreenState extends State<PendudukEditScreen> {
   var tgl_lahirController;
   var agamaController;
   var kewarganegaraanController;
+  var status_perkawinanController;
   List<String> list = <String>['aktif', 'nonaktif'];
+  List<String> status_perkawinan = <String>[
+    'BELUM KAWIN',
+    'KAWIN',
+    'CERAI HIDUP',
+    'CERAI MATI'
+  ];
   List<String> jk = <String>['L', 'P'];
   var statusController;
   //
   Future _getData() async {
     try {
       final response = await http.get(Uri.parse(
-          "http://192.168.1.103:8000/api/penduduk-edit/${widget.nik}"));
+          "http://192.168.0.107:8000/api/penduduk-edit/${widget.nik}"));
 
       // if response successful
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        print(data);
+        print(data['data']['status_perkawinan']);
         setState(() {
           no_kkController = data['data']['no_kk'];
           profesi_idController = data['data']['profesi_id'].toString();
@@ -57,6 +64,7 @@ class _PendudukEditScreenState extends State<PendudukEditScreen> {
           nik_old = data['data']['nik'];
           jkController = data['data']['jk'];
           nikController = TextEditingController(text: data['data']['nik']);
+          status_perkawinanController = data['data']['status_perkawinan'];
           nama_lengkapController =
               TextEditingController(text: data['data']['nama_lengkap']);
           tempat_lahirController =
@@ -78,7 +86,7 @@ class _PendudukEditScreenState extends State<PendudukEditScreen> {
   Future<List<KkModel>> getKk() async {
     try {
       final response =
-          await http.get(Uri.parse('http://192.168.1.103:8000/api/kk-index'));
+          await http.get(Uri.parse('http://192.168.0.107:8000/api/kk-index'));
       final body = json.decode(response.body) as List;
       if (response.statusCode == 200) {
         return body.map((dynamic json) {
@@ -101,7 +109,7 @@ class _PendudukEditScreenState extends State<PendudukEditScreen> {
   Future<List<ProfesiModel>> getProfesi() async {
     try {
       final response = await http
-          .get(Uri.parse('http://192.168.1.103:8000/api/profesi-index'));
+          .get(Uri.parse('http://192.168.0.107:8000/api/profesi-index'));
       // print(response.body);
       final body = json.decode(response.body) as List;
       if (response.statusCode == 200) {
@@ -307,6 +315,31 @@ class _PendudukEditScreenState extends State<PendudukEditScreen> {
                 ),
                 DropdownButton(
                   // Initial Value
+                  value: status_perkawinanController,
+                  hint: Text('Status Perkawinan'),
+                  isExpanded: true,
+                  // Down Arrow Icon
+                  icon: const Icon(Icons.keyboard_arrow_down),
+                  // Array list of items
+                  items: status_perkawinan
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    // status_perkawinanController = value;
+                    print(status_perkawinanController);
+                    setState(
+                      () {
+                        status_perkawinanController = value;
+                      },
+                    );
+                  },
+                ),
+                DropdownButton(
+                  // Initial Value
                   value: statusController,
                   hint: Text('Status'),
                   isExpanded: true,
@@ -360,7 +393,7 @@ class _PendudukEditScreenState extends State<PendudukEditScreen> {
     try {
       final response = await http
           .post(
-            Uri.parse("http://192.168.1.103:8000/api/penduduk-edit-proses"),
+            Uri.parse("http://192.168.0.107:8000/api/penduduk-edit-proses"),
             headers: {
               'Content-Type': 'application/json',
               'Accept': 'application/json',
@@ -379,6 +412,7 @@ class _PendudukEditScreenState extends State<PendudukEditScreen> {
                 "agama": agamaController.text,
                 "kewarganegaraan": kewarganegaraanController.text,
                 "status": statusController,
+                "status_perkawinan": status_perkawinanController,
                 "jk": jkController,
               },
             ),

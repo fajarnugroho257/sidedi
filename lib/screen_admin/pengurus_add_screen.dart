@@ -153,7 +153,7 @@ class _PengurusAddScreenState extends State<PengurusAddScreen> {
     try {
       final response = await http
           .post(
-            Uri.parse("http://192.168.1.103:8000/api/register"),
+            Uri.parse("http://192.168.0.107:8000/api/register"),
             headers: {
               'Content-Type': 'application/json',
               'Accept': 'application/json',

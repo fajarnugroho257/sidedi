@@ -34,7 +34,7 @@ class _KematianEditScreenState extends State<KematianEditScreen> {
     print(widget.kematian_id);
     try {
       final response = await http.get(Uri.parse(
-          "http://192.168.1.103:8000/api/kematian-edit/${widget.kematian_id}"));
+          "http://192.168.0.107:8000/api/kematian-edit/${widget.kematian_id}"));
 
       // if response successful
       if (response.statusCode == 200) {
@@ -55,7 +55,7 @@ class _KematianEditScreenState extends State<KematianEditScreen> {
   Future<List<PddkModel>> getPostApi() async {
     try {
       final response = await http
-          .get(Uri.parse('http://192.168.1.103:8000/api/penduduk-index'));
+          .get(Uri.parse('http://192.168.0.107:8000/api/penduduk-index'));
       final body = json.decode(response.body) as List;
       if (response.statusCode == 200) {
         return body.map((dynamic json) {
@@ -178,7 +178,7 @@ class _KematianEditScreenState extends State<KematianEditScreen> {
     try {
       final response = await http
           .post(
-            Uri.parse("http://192.168.1.103:8000/api/kematian-edit-proses"),
+            Uri.parse("http://192.168.0.107:8000/api/kematian-edit-proses"),
             headers: {
               'Content-Type': 'application/json',
               'Accept': 'application/json',

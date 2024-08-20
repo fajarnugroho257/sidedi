@@ -41,7 +41,7 @@ class _PengurusEditScreenState extends State<PengurusEditScreen> {
   Future _getData() async {
     try {
       final response = await http.get(Uri.parse(
-          "http://192.168.1.103:8000/api/user-edit/${widget.user_id}"));
+          "http://192.168.0.107:8000/api/user-edit/${widget.user_id}"));
 
       // if response successful
       if (response.statusCode == 200) {
@@ -188,7 +188,7 @@ class _PengurusEditScreenState extends State<PengurusEditScreen> {
     try {
       final response = await http
           .post(
-            Uri.parse("http://192.168.1.103:8000/api/user-edit-proses"),
+            Uri.parse("http://192.168.0.107:8000/api/user-edit-proses"),
             headers: {
               'Content-Type': 'application/json',
               'Accept': 'application/json',

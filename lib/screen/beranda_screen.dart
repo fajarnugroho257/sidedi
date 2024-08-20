@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sidedi/screen/data_penduduk_screen.dart';
 import 'package:sidedi/screen/login_screen.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -32,6 +33,49 @@ class _BerandaScreenState extends State<BerandaScreen> {
             },
           ),
         ],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          // Important: Remove any padding from the ListView.
+          padding: EdgeInsets.zero,
+          children: [
+            SizedBox(
+              height: 50,
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.info,
+              ),
+              title: const Text('Informasi Desa'),
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return BerandaScreen();
+                    },
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.account_circle,
+              ),
+              title: const Text('Data Penduduk'),
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return DataPendudukScreen();
+                    },
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -84,7 +128,7 @@ class _BerandaScreenState extends State<BerandaScreen> {
     String token =
         "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNzIwNzEzNjY1LCJleHAiOjE3MjA3MTcyNjUsIm5iZiI6MTcyMDcxMzY2NSwianRpIjoiOTV3UFVhbEpsYnlaZ1ZPUiIsInN1YiI6IjEiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.HUoVxlDj-3O5SHtWOAcfJnMCXgHjFm9WppTeOVq1NZE";
     final response = await http.get(
-      Uri.parse("http://192.168.1.103:8000/api/info-index/1"),
+      Uri.parse("http://192.168.0.107:8000/api/info-index/1"),
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
